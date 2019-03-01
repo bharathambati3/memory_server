@@ -64,4 +64,14 @@ public class TopicController {
         }
         return new BaseResponse<>(ErrorResultStatus.INVALID_TOPIC_ID, topic.getId());
     }
+
+    @DeleteMapping("/topic/{id}")
+    public BaseResponse<Boolean> deleteTopic(@PathVariable("id") Integer id) {
+        Optional<Topic> byId = topicRepo.findById(id);
+        if (byId.isPresent()) {
+            topicRepo.delete(byId.get());
+            return new BaseResponse<>(true);
+        }
+        return new BaseResponse<>(false);
+    }
 }
