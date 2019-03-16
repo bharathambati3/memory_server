@@ -37,6 +37,15 @@ public class MemoController {
         return new BaseResponse<>(memoRepo.findAll());
     }
 
+    @GetMapping("/memory/{id}")
+    public BaseResponse<Memo> getMemory(@PathVariable("id") Long id) {
+        Optional<Memo> byId = memoRepo.findById(id);
+        if (byId.isPresent()) {
+            return new BaseResponse<>(byId.get());
+        }
+        return new BaseResponse<>(ErrorResultStatus.INVALID_MEMO_ID, id);
+    }
+
     @PostMapping("/memory")
     public BaseResponse<Memo> createMemo(@Valid @RequestBody CreateMemoVo cmVo) {
         Optional<Topic> byId = topicRepo.findById(cmVo.getTopicId());
