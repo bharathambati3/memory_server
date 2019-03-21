@@ -25,6 +25,10 @@ public class MemoRecord {
 
     private LocalDateTime learntOn;
 
+    @ManyToOne
+    @JoinColumn(name = "revision_pattern_type_id")
+    private RevisionPatternType type;
+
     public MemoRecord() {
     }
 
@@ -74,5 +78,13 @@ public class MemoRecord {
 
     public void setLearntOn(LocalDateTime learntOn) {
         this.learntOn = learntOn;
+    }
+
+    public RevisionPatternType getType() {
+        return type;
+    }
+
+    public void setType(RevisionPatternType type) {
+        this.type = type;
     }
 }

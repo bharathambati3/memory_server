@@ -10,4 +10,6 @@ public interface MemoRevisionQueueRepoCustom {
     List<MemoRevisionQueue> getCurrentRevisableQueue();
 
     MemoRevisionQueue findByMemoryId(MemoRecord memoRecord);
+
+    List<MemoRevisionQueue> getRevisionsToBeUpdated();
 }

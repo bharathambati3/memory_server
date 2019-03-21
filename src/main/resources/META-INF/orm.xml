@@ -12,4 +12,12 @@
         <query>FROM MemoRevisionQueue where memoRecord = :memoRecord</query>
     </named-query>
 
+    <named-query name="revision.pattern.find.by.type">
+        <query>FROM RevisionPattern where type = :type ORDER BY duration ASC</query>
+    </named-query>
+
+    <named-query name="queue.to.be.updated">
+        <query>FROM MemoRevisionQueue where nextRevisionOn &lt; NOW() AND isCurrentRevisionDone = true</query>
+    </named-query>
+
 </entity-mappings>

@@ -32,4 +32,11 @@ public class MemoRevisionQueueRepoCustomImpl implements MemoRevisionQueueRepoCus
             return null;
         }
     }
+
+    @Override
+    public List<MemoRevisionQueue> getRevisionsToBeUpdated() {
+        TypedQuery<MemoRevisionQueue> namedQuery =
+                em.createNamedQuery("queue.to.be.updated", MemoRevisionQueue.class);
+        return namedQuery.getResultList();
+    }
 }
