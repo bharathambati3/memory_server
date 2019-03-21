@@ -18,7 +18,7 @@ public class MemoRevisionHistory {
     private LocalDateTime revisedOn;
 
     @Column(name="comments", length = 65535, columnDefinition="TEXT")
-    private String content;
+    private String comments;
 
     public MemoRevisionHistory() {
     }
@@ -47,11 +47,11 @@ public class MemoRevisionHistory {
         this.revisedOn = revisedOn;
     }
 
-    public String getContent() {
-        return content;
+    public String getComments() {
+        return comments;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 }

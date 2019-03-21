@@ -1,14 +1,11 @@
 package com.mados.memory_server.mediator;
 
 import com.mados.memory_server.constants.ErrorResultStatus;
-import com.mados.memory_server.db.entity.MemoRecord;
-import com.mados.memory_server.db.entity.MemoAudit;
-import com.mados.memory_server.db.entity.Topic;
-import com.mados.memory_server.db.repository.MemoAuditRepo;
-import com.mados.memory_server.db.repository.MemoRecordRepo;
-import com.mados.memory_server.db.repository.TopicRepo;
+import com.mados.memory_server.db.entity.*;
+import com.mados.memory_server.db.repository.*;
 import com.mados.memory_server.request.BaseResponse;
 import com.mados.memory_server.request.CreateMemoVo;
+import com.mados.memory_server.request.SaveRevisionVo;
 import com.mados.memory_server.request.UpdateMemoVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,6 +25,12 @@ public class MemoryMediator {
 
     @Autowired
     TopicRepo topicRepo;
+
+    @Autowired
+    MemoRevisionQueueRepo revisionQueueRepo;
+
+    @Autowired
+    MemoRevisionHistoryRepo revisionHistoryRepo;
 
     public BaseResponse<List<MemoRecord>> getAllNotes() {
         return new BaseResponse<>(memoRecordRepo.findAll());
@@ -95,5 +98,37 @@ public class MemoryMediator {
             return new BaseResponse<>(memoRecord);
         }
         return new BaseResponse<>(ErrorResultStatus.INVALID_MEMO_ID, umVo.getMemoId());
+    }
+
+    public BaseResponse<List<MemoRevisionQueue>> getMemoRevisions() {
+        List<MemoRevisionQueue> currentRevisableQueue = revisionQueueRepo.getCurrentRevisableQueue();
+        return new BaseResponse<>(currentRevisableQueue);
+    }
+
+    public BaseResponse<MemoRevisionHistory> memoryRevised(SaveRevisionVo saveRevisionVo) {
+        Optional<MemoRevisionQueue> byId = revisionQueueRepo.findById(saveRevisionVo.getId());
+        if (! byId.isPresent()) {
+            return new BaseResponse<>(ErrorResultStatus.NO_QUEUE_FOR_GIVEN_ID, saveRevisionVo.getId());
+        }
+        MemoRevisionQueue memoRevisionQueue = byId.get();
+        memoRevisionQueue.setCurrentRevisionDone(true);
+        revisionQueueRepo.save(memoRevisionQueue);
+        MemoRevisionHistory history = new MemoRevisionHistory();
+        history.setRevisedOn(LocalDateTime.now());
+        history.setComments(saveRevisionVo.getComments());
+        MemoRevisionHistory revisionHistory = revisionHistoryRepo.save(history);
+        return new BaseResponse<>(revisionHistory);
+    }
+
+    public MemoRevisionQueue getRevisionQueue(Long memoryId) {
+        Optional<MemoRecord> byId = memoRecordRepo.findById(memoryId);
+        if (byId.isPresent()) {
+            MemoRevisionQueue byMemoryId = revisionQueueRepo.findByMemoryId(byId.get());
+            if (byMemoryId == null) {
+                return null;
+            }
+            return byMemoryId;
+        }
+        return null;
     }
 }

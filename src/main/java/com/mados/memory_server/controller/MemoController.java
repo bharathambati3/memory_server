@@ -1,9 +1,12 @@
 package com.mados.memory_server.controller;
 
 import com.mados.memory_server.db.entity.MemoRecord;
+import com.mados.memory_server.db.entity.MemoRevisionHistory;
+import com.mados.memory_server.db.entity.MemoRevisionQueue;
 import com.mados.memory_server.mediator.MemoryMediator;
 import com.mados.memory_server.request.BaseResponse;
 import com.mados.memory_server.request.CreateMemoVo;
+import com.mados.memory_server.request.SaveRevisionVo;
 import com.mados.memory_server.request.UpdateMemoVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -37,5 +40,15 @@ public class MemoController {
     @PutMapping("/memory")
     public BaseResponse<MemoRecord> updateMemo(@Valid @RequestBody UpdateMemoVo umVo) {
         return memoryMediator.updateMemo(umVo);
+    }
+
+    @GetMapping("memory/revisions")
+    public BaseResponse<List<MemoRevisionQueue>> getMemoRevisions() {
+        return memoryMediator.getMemoRevisions();
+    }
+
+    @PostMapping("memory/revised")
+    public BaseResponse<MemoRevisionHistory> memoryRevised(@Valid @RequestBody SaveRevisionVo saveRevisionVo) {
+        return memoryMediator.memoryRevised(saveRevisionVo);
     }
 }
