@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+server_ip=3007
+server_debug_port=8889
+client_ip=3004
+
+server_dir=$(dirname "$0")
+client_dir="$server_dir/../memory_client"
+
+server_jar=$server_dir"/target/memory_server-0.0.1-SNAPSHOT.jar"
+
+DATE_WITH_TIME=`date "+%Y%m%d-%H%M%S"`
+
+
+if [ $# -eq 1 ]
+then
+	case $1 in
+		start)
+
+		    echo "input count: $#"
+
+            echo "server ip: $server_ip"
+            echo "client ip: $client_ip"
+
+            echo "server jar $server_jar"
+            echo "client dir $client_dir"
+
+            if [ -f "$server_jar" ]
+            then
+                echo "Found server jar file"
+            else
+                echo "No server jar file found, building..."
+                mvn -f "$server_dir/pom.xml" clean install
+                echo "Built server jar file successfully";
+            fi
+
+			echo "Starting my memory Application!";
+
+			nohup java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${server_debug_port} -jar ${server_jar} --server.port=${server_ip} &
+			echo "Server pid $! started at port $server_ip"
+
+            set PORT=${client_ip}
+			nohup npm start --prefix $client_dir &
+			echo "Client pid $! started at port $client_ip"
+#			tail -f ~/nohup.out
+			exit;
+			;;
+		stop)
+			echo stoping
+			echo killing server @ pid $(lsof -nP -i4TCP:$server_ip | grep LISTEN | awk '{print $2}')
+			kill -9 $(lsof -nP -i4TCP:$server_ip | grep LISTEN | awk '{print $2}')
+
+			echo killing client @ pid $(lsof -nP -i4TCP:$client_ip | grep LISTEN | awk '{print $2}')
+			kill -9 $(lsof -nP -i4TCP:$client_ip | grep LISTEN | awk '{print $2}')
+
+			echo "stopped memory webserver"
+			;;
+		restart)
+			echo restarting
+			;;
+		*)
+			echo "Usage: memory-app [start|stop|restart]"
+			exit;
+			;;
+		esac
+else
+	echo "Usage: memory-app [start|stop|restart]"
+fi
+
+exit;

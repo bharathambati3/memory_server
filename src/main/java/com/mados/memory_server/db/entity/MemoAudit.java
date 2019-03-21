@@ -13,7 +13,7 @@ public class MemoAudit {
 
     @ManyToOne
     @JoinColumn(name = "memo_id")
-    private Memo memo;
+    private MemoRecord memoRecord;
 
     private String title;
 
@@ -36,12 +36,12 @@ public class MemoAudit {
         this.id = id;
     }
 
-    public Memo getMemo() {
-        return memo;
+    public MemoRecord getMemoRecord() {
+        return memoRecord;
     }
 
-    public void setMemo(Memo memo) {
-        this.memo = memo;
+    public void setMemoRecord(MemoRecord memoRecord) {
+        this.memoRecord = memoRecord;
     }
 
     public String getTitle() {

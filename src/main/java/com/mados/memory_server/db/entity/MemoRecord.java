@@ -4,8 +4,8 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "memo")
-public class Memo {
+@Table(name = "memo_record")
+public class MemoRecord {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -25,7 +25,7 @@ public class Memo {
 
     private LocalDateTime learntOn;
 
-    public Memo() {
+    public MemoRecord() {
     }
 
     public Long getId() {
