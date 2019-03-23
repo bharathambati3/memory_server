@@ -15,6 +15,9 @@ public class MemoRevisionHistory {
     @JoinColumn(name = "memo_id")
     private MemoRecord memoRecord;
 
+    @Column(name = "to_be_revised_on")
+    private LocalDateTime toBeRevisedOn;
+
     private LocalDateTime revisedOn;
 
     @Column(name="comments", length = 65535, columnDefinition="TEXT")
@@ -37,6 +40,14 @@ public class MemoRevisionHistory {
 
     public void setMemoRecord(MemoRecord memoRecord) {
         this.memoRecord = memoRecord;
+    }
+
+    public LocalDateTime getToBeRevisedOn() {
+        return toBeRevisedOn;
+    }
+
+    public void setToBeRevisedOn(LocalDateTime toBeRevisedOn) {
+        this.toBeRevisedOn = toBeRevisedOn;
     }
 
     public LocalDateTime getRevisedOn() {

@@ -76,6 +76,7 @@ public class MemoryMediator {
                 MemoRevisionQueue queue = new MemoRevisionQueue();
                 queue.setMemoRecord(memoRecord);
                 queue.setCurrentRevisionDone(true);
+                queue.setCurrentRevisionDate(memoRecord.getCreatedOn());
                 queue.setNextRevisionOn(ldt);
                 revisionQueueRepo.save(queue);
             }
@@ -166,14 +167,14 @@ public class MemoryMediator {
     }
 
     public BaseResponse<MemoRevisionHistory> memoryRevised(SaveRevisionVo saveRevisionVo) {
-        Optional<MemoRevisionQueue> byId = revisionQueueRepo.findById(saveRevisionVo.getId());
-        if (! byId.isPresent()) {
-            return new BaseResponse<>(ErrorResultStatus.NO_QUEUE_FOR_GIVEN_ID, saveRevisionVo.getId());
+        MemoRevisionQueue memoRevisionQueue = getRevisionQueue(saveRevisionVo.getMemoryId());
+        if (memoRevisionQueue == null) {
+            return new BaseResponse<>(ErrorResultStatus.NO_QUEUE_FOR_GIVEN_MEMORY_ID, saveRevisionVo.getMemoryId());
         }
-        MemoRevisionQueue memoRevisionQueue = byId.get();
         memoRevisionQueue.setCurrentRevisionDone(true);
         revisionQueueRepo.save(memoRevisionQueue);
         MemoRevisionHistory history = new MemoRevisionHistory();
+        history.setToBeRevisedOn(memoRevisionQueue.getCurrentRevisionDate());
         history.setRevisedOn(LocalDateTime.now());
         history.setComments(saveRevisionVo.getComments());
         history.setMemoRecord(memoRevisionQueue.getMemoRecord());

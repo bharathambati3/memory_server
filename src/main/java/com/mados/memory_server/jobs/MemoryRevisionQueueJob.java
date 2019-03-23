@@ -41,6 +41,7 @@ public class MemoryRevisionQueueJob implements Job {
             if (nextRevisionOn == null) {
                 revisionQueueRepo.delete(revision);
             } else {
+                revision.setCurrentRevisionDate(currRevision);
                 revision.setNextRevisionOn(nextRevisionOn);
                 revision.setCurrentRevisionDone(false);
                 revisionQueueRepo.save(revision);

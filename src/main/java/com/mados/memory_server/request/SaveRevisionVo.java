@@ -2,18 +2,18 @@ package com.mados.memory_server.request;
 
 public class SaveRevisionVo {
 
-    private Long id;
+    private Long memoryId;
     private String comments;
 
     public SaveRevisionVo() {
     }
 
-    public Long getId() {
-        return id;
+    public Long getMemoryId() {
+        return memoryId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setMemoryId(Long memoryId) {
+        this.memoryId = memoryId;
     }
 
     public String getComments() {

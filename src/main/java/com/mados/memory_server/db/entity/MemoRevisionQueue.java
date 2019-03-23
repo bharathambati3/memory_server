@@ -15,6 +15,9 @@ public class MemoRevisionQueue {
     @JoinColumn(name = "record_id")
     private MemoRecord memoRecord;
 
+    @Column(name = "current_revision_date")
+    private LocalDateTime currentRevisionDate;
+
     @Column(name = "next_revision_on")
     private LocalDateTime nextRevisionOn;
 
@@ -38,6 +41,14 @@ public class MemoRevisionQueue {
 
     public void setMemoRecord(MemoRecord memoRecord) {
         this.memoRecord = memoRecord;
+    }
+
+    public LocalDateTime getCurrentRevisionDate() {
+        return currentRevisionDate;
+    }
+
+    public void setCurrentRevisionDate(LocalDateTime currentRevisionDate) {
+        this.currentRevisionDate = currentRevisionDate;
     }
 
     public LocalDateTime getNextRevisionOn() {
