@@ -15,14 +15,18 @@ public class MemoRevisionQueue {
     @JoinColumn(name = "record_id")
     private MemoRecord memoRecord;
 
+    @Column(name = "to_be_revised_on")
+    private LocalDateTime toBeRevisedOn;
+
     @Column(name = "current_revision_date")
     private LocalDateTime currentRevisionDate;
 
     @Column(name = "next_revision_on")
     private LocalDateTime nextRevisionOn;
 
-    @Column(name = "current_revision_done", columnDefinition = "TINYINT(1)")
-    private Boolean isCurrentRevisionDone;
+    @ManyToOne
+    @JoinColumn(name = "current_revision_id")
+    private RevisionPattern currentRevisionPattern;
 
     public MemoRevisionQueue() {
     }
@@ -43,6 +47,14 @@ public class MemoRevisionQueue {
         this.memoRecord = memoRecord;
     }
 
+    public LocalDateTime getToBeRevisedOn() {
+        return toBeRevisedOn;
+    }
+
+    public void setToBeRevisedOn(LocalDateTime toBeRevisedOn) {
+        this.toBeRevisedOn = toBeRevisedOn;
+    }
+
     public LocalDateTime getCurrentRevisionDate() {
         return currentRevisionDate;
     }
@@ -59,11 +71,11 @@ public class MemoRevisionQueue {
         this.nextRevisionOn = nextRevisionOn;
     }
 
-    public Boolean getCurrentRevisionDone() {
-        return isCurrentRevisionDone;
+    public RevisionPattern getCurrentRevisionPattern() {
+        return currentRevisionPattern;
     }
 
-    public void setCurrentRevisionDone(Boolean currentRevisionDone) {
-        isCurrentRevisionDone = currentRevisionDone;
+    public void setCurrentRevisionPattern(RevisionPattern currentRevisionPattern) {
+        this.currentRevisionPattern = currentRevisionPattern;
     }
 }

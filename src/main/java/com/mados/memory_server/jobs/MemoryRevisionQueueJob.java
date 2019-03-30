@@ -1,9 +1,11 @@
 package com.mados.memory_server.jobs;
 
 import com.mados.memory_server.db.entity.MemoRevisionQueue;
+import com.mados.memory_server.db.entity.RevisionPattern;
 import com.mados.memory_server.db.entity.RevisionPatternType;
 import com.mados.memory_server.db.repository.MemoRevisionQueueRepo;
 import com.mados.memory_server.mediator.MemoryMediator;
+import com.mados.memory_server.vo.RevisionVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,23 +29,24 @@ public class MemoryRevisionQueueJob implements Job {
     @Override
     @Scheduled(fixedDelay= 10*1000)
     public void execute() {
-        //get memory revisions to be updated. isRevisionDone true && curr time > nextUpdatedTime
-        //for each memory set new nextUpdatedTime
+        //get memory revisions to be updated. curr time > nextUpdatedTime
+        //for each memory set next revision pattern
         // here if its value is null then remove from queue.
         List<MemoRevisionQueue> revisions = revisionQueueRepo.getRevisionsToBeUpdated();
 
         for (MemoRevisionQueue revision : revisions) {
             RevisionPatternType type = revision.getMemoRecord().getType();
-            LocalDateTime createdOn = revision.getMemoRecord().getCreatedOn();
-            LocalDateTime currRevision = revision.getNextRevisionOn();
-            LocalDateTime nextRevisionOn = memoryMediator.getNextRevisionOn(type, createdOn, currRevision);
+            LocalDateTime prevNextRevisionOn = revision.getNextRevisionOn();
+            RevisionPattern currentRevisionPattern = revision.getCurrentRevisionPattern();
+            RevisionPattern nextRevisionPattern = memoryMediator.getNextRevisionOn(type, currentRevisionPattern);
 
-            if (nextRevisionOn == null) {
+            if (nextRevisionPattern == null) {
                 revisionQueueRepo.delete(revision);
             } else {
-                revision.setCurrentRevisionDate(currRevision);
-                revision.setNextRevisionOn(nextRevisionOn);
-                revision.setCurrentRevisionDone(false);
+                revision.setToBeRevisedOn(prevNextRevisionOn);
+                revision.setCurrentRevisionDate(null);
+                revision.setNextRevisionOn(null);
+                revision.setCurrentRevisionPattern(nextRevisionPattern);
                 revisionQueueRepo.save(revision);
             }
         }

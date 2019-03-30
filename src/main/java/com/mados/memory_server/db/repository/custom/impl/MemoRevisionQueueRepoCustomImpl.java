@@ -18,7 +18,6 @@ public class MemoRevisionQueueRepoCustomImpl implements MemoRevisionQueueRepoCus
     public List<MemoRevisionQueue> getCurrentRevisableQueue() {
         TypedQuery<MemoRevisionQueue> namedQuery =
                 em.createNamedQuery("revision.active.list", MemoRevisionQueue.class);
-        namedQuery.setParameter("isCurrentRevisionDone", false);
         return namedQuery.getResultList();
     }
 

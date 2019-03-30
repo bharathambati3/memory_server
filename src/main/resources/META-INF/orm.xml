@@ -5,7 +5,7 @@
                  version="2.0">
 
     <named-query name="revision.active.list">
-        <query>FROM MemoRevisionQueue where isCurrentRevisionDone = :isCurrentRevisionDone</query>
+        <query>FROM MemoRevisionQueue where nextRevisionOn IS NULL</query>
     </named-query>
 
     <named-query name="memory.queue.find.by.memory.id">
@@ -13,11 +13,11 @@
     </named-query>
 
     <named-query name="revision.pattern.find.by.type">
-        <query>FROM RevisionPattern where type = :type ORDER BY duration ASC</query>
+        <query>FROM RevisionPattern where revisionPatternType = :revisionPatternType ORDER BY duration ASC</query>
     </named-query>
 
     <named-query name="queue.to.be.updated">
-        <query>FROM MemoRevisionQueue where nextRevisionOn &lt; NOW() AND isCurrentRevisionDone = true</query>
+        <query>FROM MemoRevisionQueue where nextRevisionOn &lt; NOW()</query>
     </named-query>
 
 </entity-mappings>

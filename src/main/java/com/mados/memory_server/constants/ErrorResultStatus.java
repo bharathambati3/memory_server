@@ -9,7 +9,8 @@ public enum ErrorResultStatus {
     INVALID_MEMO_ID(3, "Invalid request: Given memory id {0} is not valid"),
     NO_QUEUE_FOR_GIVEN_MEMORY_ID(4, "No revisable memory found for the given memory id {0}"),
     NO_QUEUE_FOR_GIVEN_ID(5, "No revisable memory found for the given id {0}"),
-    INVALID_MEMO_UPDATE_REQ(6, "Invalid request: Given title & content are null");
+    INVALID_MEMO_UPDATE_REQ(6, "Invalid request: Given title & content are null"),
+    INVALID_REVISION_TYPE_ID(7, "Invalid request: Given revision type id {0} is not valid");
 
     private int status;
     private String message;

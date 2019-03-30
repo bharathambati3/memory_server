@@ -18,7 +18,7 @@ public class RevisionPatternRepoCustomImpl implements RevisionPatternRepoCustom 
     public List<RevisionPattern> findByType(RevisionPatternType type) {
         TypedQuery<RevisionPattern> namedQuery =
                 em.createNamedQuery("revision.pattern.find.by.type", RevisionPattern.class);
-        namedQuery.setParameter("type", type);
+        namedQuery.setParameter("revisionPatternType", type);
         return namedQuery.getResultList();
     }
 }

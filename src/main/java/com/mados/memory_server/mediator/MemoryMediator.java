@@ -7,6 +7,7 @@ import com.mados.memory_server.request.BaseResponse;
 import com.mados.memory_server.request.CreateMemoVo;
 import com.mados.memory_server.request.SaveRevisionVo;
 import com.mados.memory_server.request.UpdateMemoVo;
+import com.mados.memory_server.vo.RevisionVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,16 +69,16 @@ public class MemoryMediator {
             memoRecord.setType(revisionType);
             memoRecord = memoRecordRepo.save(memoRecord);
 
-            LocalDateTime ldt = getNextRevisionOn(memoRecord.getType(),
-                    memoRecord.getCreatedOn(),
-                    memoRecord.getCreatedOn());
-            if (ldt != null) {
+            RevisionPattern currentRevisionPattern = getNextRevisionOn(memoRecord.getType(), null);
+
+            if (currentRevisionPattern != null) {
 
                 MemoRevisionQueue queue = new MemoRevisionQueue();
                 queue.setMemoRecord(memoRecord);
-                queue.setCurrentRevisionDone(true);
+                queue.setToBeRevisedOn(memoRecord.getCreatedOn());
                 queue.setCurrentRevisionDate(memoRecord.getCreatedOn());
-                queue.setNextRevisionOn(ldt);
+                queue.setNextRevisionOn(memoRecord.getCreatedOn().plusMinutes(currentRevisionPattern.getDuration()));
+                queue.setCurrentRevisionPattern(currentRevisionPattern);
                 revisionQueueRepo.save(queue);
             }
 
@@ -109,9 +110,7 @@ public class MemoryMediator {
         return null;
     }
 
-    public LocalDateTime getNextRevisionOn(RevisionPatternType type,
-                                            LocalDateTime firstRevision,
-                                            LocalDateTime currentRevision) {
+    public RevisionPattern getNextRevisionOn(RevisionPatternType type, RevisionPattern currentRevisionPattern) {
         if (type == null) {
             return null;
         }
@@ -121,11 +120,22 @@ public class MemoryMediator {
         }
 
         //revisionPatterns is ascending order of duration from query.
-        LocalDateTime revisionProgress = firstRevision;
+        if (currentRevisionPattern == null) {
+            return revisionPatterns.get(0);
+        }
+
+        if (! currentRevisionPattern.getRevisionPatternType().equals(type)) {
+            //auto correct. take the first revision pattern from the correct type.
+            return revisionPatterns.get(0);
+        }
+
+        boolean found = false;
         for (RevisionPattern aByType : revisionPatterns) {
-            revisionProgress = revisionProgress.plusMinutes(aByType.getDuration());
-            if (revisionProgress.isAfter(currentRevision)) {
-                return revisionProgress;
+            if (found) {
+                return aByType;
+            }
+            if (aByType.equals(currentRevisionPattern)) {
+                found = true;
             }
         }
         return null;
@@ -171,11 +181,19 @@ public class MemoryMediator {
         if (memoRevisionQueue == null) {
             return new BaseResponse<>(ErrorResultStatus.NO_QUEUE_FOR_GIVEN_MEMORY_ID, saveRevisionVo.getMemoryId());
         }
-        memoRevisionQueue.setCurrentRevisionDone(true);
-        revisionQueueRepo.save(memoRevisionQueue);
+        LocalDateTime nextRevisionOn = memoRevisionQueue.getNextRevisionOn();
+
+        LocalDateTime now = LocalDateTime.now();
+        //Extend revision period only when the revision is done only once in a given revision duration.
+        if (nextRevisionOn == null) {
+            memoRevisionQueue.setCurrentRevisionDate(now);
+            memoRevisionQueue.setNextRevisionOn(now.plusMinutes(memoRevisionQueue.getCurrentRevisionPattern().getDuration()));
+            revisionQueueRepo.save(memoRevisionQueue);
+        }
+
         MemoRevisionHistory history = new MemoRevisionHistory();
-        history.setToBeRevisedOn(memoRevisionQueue.getCurrentRevisionDate());
-        history.setRevisedOn(LocalDateTime.now());
+        history.setToBeRevisedOn(memoRevisionQueue.getToBeRevisedOn());
+        history.setRevisedOn(now);
         history.setComments(saveRevisionVo.getComments());
         history.setMemoRecord(memoRevisionQueue.getMemoRecord());
         MemoRevisionHistory revisionHistory = revisionHistoryRepo.save(history);
